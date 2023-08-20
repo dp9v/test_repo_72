@@ -10,6 +10,7 @@ import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
+import static io.javalin.apibuilder.ApiBuilder.get;
 
 public class App {
 
@@ -49,12 +50,13 @@ public class App {
 
 
         app.routes(() -> {
-            path("/", () -> {
-                post("urls", UrlController.createUrl);
-                get("urls", UrlController.showUrls);
-                path("urls/{id}", () -> {
-                    get(UrlController.showUrl);
-                });
+            path("/urls", () -> {
+                post("/", UrlController.createUrl);
+                get("/", UrlController.showUrls);
+                get("/{id}", UrlController.showUrl);
+                post("/{id}/checks", UrlController.checkUrl);
+
+
             });
         });
 

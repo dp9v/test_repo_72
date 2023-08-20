@@ -1,16 +1,22 @@
 package hexlet.code.controllers;
 
 import hexlet.code.domain.Url;
+import hexlet.code.domain.UrlCheck;
 import hexlet.code.domain.query.QUrl;
+import hexlet.code.domain.query.QUrlCheck;
 import io.ebean.PagedList;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 
 public class UrlController {
 
@@ -87,7 +93,41 @@ public class UrlController {
             throw new NotFoundResponse();
         }
 
+        List<UrlCheck> urlCheckList = new QUrlCheck()
+                .url.equalTo(url)
+                .orderBy().id.desc()
+                .findList();
+
+        ctx.attribute("urlCheckList", urlCheckList);
+
         ctx.attribute("url", url);
         ctx.render("urls/show.html");
+    };
+
+    public static Handler checkUrl = ctx -> {
+        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+
+        Url url = new QUrl()
+                .id.equalTo(id)
+                .findOne();
+
+        if (url == null) {
+            throw new NotFoundResponse();
+        }
+
+        HttpResponse<String> response = Unirest
+                .get(url.getName())
+                .asString();
+        String body = response.getBody();
+        int status = response.getStatus();
+
+
+        UrlCheck urlCheck = new UrlCheck(status, "title", "h1", "description", url);
+        urlCheck.save();
+
+        ctx.sessionAttribute("flash", "Страница успешно проверена");
+        ctx.sessionAttribute("flash-type", "success");
+        ctx.attribute("url", url);
+        ctx.redirect("/urls/" + id);
     };
 }
