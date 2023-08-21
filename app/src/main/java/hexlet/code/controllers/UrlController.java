@@ -17,6 +17,10 @@ import java.util.stream.IntStream;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class UrlController {
 
@@ -121,8 +125,19 @@ public class UrlController {
         String body = response.getBody();
         int status = response.getStatus();
 
+        Document document = Jsoup.connect(url.getName()).get();
+        //Elements titleElem = document.select("head > title");
+        var title = document.title();
+        String h1 = document.selectFirst("h1").text();
 
-        UrlCheck urlCheck = new UrlCheck(status, "title", "h1", "description", url);
+
+        String description = "";
+        if (document.selectFirst("meta[name=description][content]") != null) {
+            description = document.selectFirst("meta[name=description][content]").attr("content");
+        }
+
+
+        UrlCheck urlCheck = new UrlCheck(status, title, h1, description, url);
         urlCheck.save();
 
         ctx.sessionAttribute("flash", "Страница успешно проверена");

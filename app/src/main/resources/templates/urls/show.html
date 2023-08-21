@@ -42,9 +42,9 @@
     <tr th:each="urlCheck : ${urlCheckList}" th:object="${urlCheck}">
         <td th:text="*{getId()}"></td>
         <td th:text="*{getStatusCode()}"></td>
-        <td th:text="*{getStatusCode()}"></td>
-        <td th:text="*{getStatusCode()}"></td>
-        <td th:text="*{getStatusCode()}"></td>
+        <td th:text="*{getTitle()}"></td>
+        <td th:text="*{getH1()}"></td>
+        <td th:text="*{getDescription()}"></td>
         <td th:text="${#temporals.format(urlCheck.getCreatedAt(), 'dd/MM/yyyy HH:mm')}"></td>
     </tr>
     </tbody>
