@@ -64,7 +64,6 @@ public class UrlController {
             if (checkedUrl != null) {
                 ctx.sessionAttribute("flash", "Страница уже существует");
                 ctx.sessionAttribute("flash-type", "danger");
-                //ctx.attribute("url", checkedUrl);
                 ctx.render("index.html");
                 return;
             }
@@ -122,11 +121,10 @@ public class UrlController {
         HttpResponse<String> response = Unirest
                 .get(url.getName())
                 .asString();
-        String body = response.getBody();
+
         int status = response.getStatus();
 
         Document document = Jsoup.connect(url.getName()).get();
-        //Elements titleElem = document.select("head > title");
         var title = document.title();
         String h1 = document.selectFirst("h1").text();
 

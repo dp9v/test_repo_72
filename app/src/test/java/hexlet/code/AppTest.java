@@ -131,17 +131,17 @@ public class AppTest {
 
         @Test
         void testCreateExisting() {
-//            String inputName = existingUrl.getName();
-//            HttpResponse<String> responsePost = Unirest
-//                    .post(baseUrl + "/urls")
-//                    .field("name", inputName)
-//                    .asEmpty();
-//
-//            assertThat(responsePost.getStatus()).isEqualTo(302);
-//            assertThat(responsePost.getBody()).contains("Страница уже существует");
-            //String body = responsePost.getBody();
+            String inputName = existingUrl.getName();
+            HttpResponse<String> responsePost = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("name", inputName)
+                    .asString();;
 
-            //assertThat(responsePost.getStatus()).isEqualTo(200);
+            assertThat(responsePost.getStatus()).isEqualTo(302);
+            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
+
+            String body = responsePost.getBody();
+            assertThat(body.contains("Страница уже существует"));
 
             Url actualUrl = new QUrl()
                     .name.equalTo(existingUrl.getName())
@@ -149,6 +149,21 @@ public class AppTest {
 
             assertThat(actualUrl).isNotNull();
             assertThat(actualUrl.getName()).isEqualTo(existingUrl.getName());
+        }
+
+        @Test
+        void testCreateNonvalid() throws MalformedURLException {
+            String inputName = "asdfg";
+            HttpResponse<String> responsePost = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("name", inputName)
+                    .asString();
+
+            assertThat(responsePost.getStatus()).isEqualTo(200);
+            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("");
+
+            String body = responsePost.getBody();
+            assertThat(body).contains("Некорректный URL");
         }
     }
 }
