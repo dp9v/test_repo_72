@@ -121,8 +121,10 @@ public class UrlController {
 
         Document document = Jsoup.connect(url.getName()).get();
         var title = document.title();
-        String h1 = document.selectFirst("h1").text();
-
+        String h1 = "";
+        if (document.selectFirst("h1") != null) {
+            h1 = document.selectFirst("h1").text();
+        }
 
         String description = "";
         if (document.selectFirst("meta[name=description][content]") != null) {
