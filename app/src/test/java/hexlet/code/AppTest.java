@@ -79,7 +79,7 @@ public class AppTest {
         void testIndex() {
             HttpResponse<String> response = Unirest.get(baseUrl).asString();
             assertThat(response.getStatus()).isEqualTo(200);
-            assertThat(response.getBody()).contains("Анализатор страниц");
+            assertThat(response.getBody()).contains("РђРЅР°Р»РёР·Р°С‚РѕСЂ СЃС‚СЂР°РЅРёС†");
         }
 
     }
@@ -143,7 +143,7 @@ public class AppTest {
 
             assertThat(response.getStatus()).isEqualTo(200);
             assertThat(body).contains(normalizedName);
-            assertThat(body).contains("Страница успешно добавлена");
+            assertThat(body).contains("РЎС‚СЂР°РЅРёС†Р° СѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІР»РµРЅР°");
 
             Url actualUrl = new QUrl()
                     .name.equalTo(normalizedName)
@@ -165,7 +165,7 @@ public class AppTest {
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
 
             String body = responsePost.getBody();
-            assertThat(body.contains("Страница уже существует"));
+            assertThat(body.contains("РЎС‚СЂР°РЅРёС†Р° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"));
 
             Url actualUrl = new QUrl()
                     .name.equalTo(existingUrl.getName())
@@ -187,7 +187,7 @@ public class AppTest {
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("");
 
             String body = responsePost.getBody();
-            assertThat(body).contains("Некорректный URL");
+            assertThat(body).contains("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ URL");
         }
 
         @Test
@@ -227,7 +227,7 @@ public class AppTest {
             assertThat(responsePost.getStatus()).isEqualTo(302);
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls/" + url.getId());
             String body1 = responsePost.getBody();
-            assertThat(body1.contains("Страница успешно проверена"));
+            assertThat(body1.contains("РЎС‚СЂР°РЅРёС†Р° СѓСЃРїРµС€РЅРѕ РїСЂРѕРІРµСЂРµРЅР°"));
 
 
 //            HttpResponse<String> responseGet = Unirest
