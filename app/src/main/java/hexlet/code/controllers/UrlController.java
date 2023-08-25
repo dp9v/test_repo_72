@@ -18,8 +18,6 @@ import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 public class UrlController {
 
@@ -73,9 +71,7 @@ public class UrlController {
             ctx.sessionAttribute("flash", "Страница успешно добавлена");
             ctx.sessionAttribute("flash-type", "success");
             ctx.redirect("/urls");
-        }
-
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             ctx.sessionAttribute("flash", "Некорректный URL");
             ctx.sessionAttribute("flash-type", "danger");
             ctx.render("index.html");

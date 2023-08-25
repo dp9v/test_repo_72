@@ -8,7 +8,7 @@ import java.time.Instant;
 import io.ebean.annotation.WhenCreated;
 
 @Entity
-public class UrlCheck extends Model {
+public final class UrlCheck extends Model {
 
     @Id
     private long id;
