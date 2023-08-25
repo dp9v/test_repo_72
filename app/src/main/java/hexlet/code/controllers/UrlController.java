@@ -9,6 +9,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
 
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -131,13 +132,12 @@ public class UrlController {
             description = document.selectFirst("meta[name=description][content]").attr("content");
         }
 
-
         UrlCheck urlCheck = new UrlCheck(status, title, h1, description, url);
         urlCheck.save();
 
         ctx.sessionAttribute("flash", "Страница успешно проверена");
         ctx.sessionAttribute("flash-type", "success");
-        ctx.attribute("url", url);
+        //ctx.attribute("url", url);
         ctx.redirect("/urls/" + id);
     };
 }
