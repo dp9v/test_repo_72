@@ -226,7 +226,6 @@ public final class AppTest {
             String body1 = responsePost.getBody();
             assertThat(body1.contains("Страница успешно проверена"));
 
-
 //            HttpResponse<String> responseGet = Unirest
 //                    .get(baseUrl + "/urls/" + url.getId())
 //                    .asString();
