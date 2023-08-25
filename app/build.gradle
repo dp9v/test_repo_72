@@ -59,6 +59,12 @@ testlogger {
     showStandardStreams true
 }
 
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
 compileJava {
     options.encoding = 'UTF-8'
 }
