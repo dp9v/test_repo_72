@@ -30,11 +30,6 @@ import hexlet.code.domain.query.QUrl;
 
 public final class AppTest {
 
-//    @Test
-//    void testInit() {
-//        assertThat(true).isEqualTo(true);
-//    }
-
     private static Javalin app;
     private static String baseUrl;
     private static Url existingUrl;
