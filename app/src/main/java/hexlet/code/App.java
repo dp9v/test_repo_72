@@ -49,7 +49,6 @@ public class App {
         // Для GET-запроса на маршрут / будет выполняться
         app.get("/", RootController.welcome);
 
-
         app.routes(() -> {
             path("/urls", () -> {
                 post("/", UrlController.createUrl);
@@ -60,7 +59,6 @@ public class App {
 
             });
         });
-
     }
 
     public static Javalin getApp() {
