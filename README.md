@@ -24,6 +24,7 @@ Adding the website to the database
 ![adding-1](https://github.com/corrente7/java-project-72/assets/68503914/fa8301ac-d8ce-4697-9d51-077e6a34660f)
 
 Checking current HTTP responses
+
 ![github-check1](https://github.com/corrente7/java-project-72/assets/68503914/8b6edbf8-f34a-431d-baf1-a32aac03cc94)
 
 ![example-check1](https://github.com/corrente7/java-project-72/assets/68503914/52949257-d7f8-4e51-b15d-fad4896e5196)
