@@ -17,7 +17,6 @@ import java.util.stream.IntStream;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 public class UrlController {
 
