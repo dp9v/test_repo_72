@@ -119,7 +119,7 @@ public class UrlController {
 
         int status = response.getStatus();
 
-        Document document = Jsoup.connect(url.getName()).get();
+        var document = Jsoup.parse(response.getBody());
         var title = document.title();
         String h1 = "";
         if (document.selectFirst("h1") != null) {

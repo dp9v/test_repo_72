@@ -215,22 +215,19 @@ public final class AppTest {
                     .asString();
 
             String body = responsePost.getBody();
-// Здесь выпадает SocketTimeoutException, не знаю что с ним делать,
-// поэтому пока просто закоментила код, который не срабатывает
-//            assertThat(responsePost.getStatus()).isEqualTo(302);
-//            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls/" + url.getId());
+
+            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls/" + url.getId());
             assertThat(body.contains("Страница успешно проверена"));
 
+            String body1 = Unirest
+                    .get(baseUrl + "/urls/" + url.getId())
+                    .asString()
+                    .getBody();
 
-//            String body = Unirest
-//                    .get(baseUrl + "/urls/" + url.getId())
-//                    .asString()
-//                    .getBody();
-//
-//            assertThat(body).contains("200");
-//            assertThat(body).contains("title text");
-//            assertThat(body).contains("description text");
-//            assertThat(body).contains("h1 text");
+            assertThat(body1).contains("200");
+            assertThat(body1).contains("title text");
+            assertThat(body1).contains("description text");
+            assertThat(body1).contains("h1 text");
 
             server.shutdown();
 
