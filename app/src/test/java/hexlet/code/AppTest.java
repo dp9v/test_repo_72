@@ -45,7 +45,6 @@ public final class AppTest {
 
         existingUrl = new Url("https://javalin.io/");
         existingUrl.save();
-
     }
 
     @AfterAll
