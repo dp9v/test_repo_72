@@ -70,7 +70,7 @@ public final class AppTest {
         void testIndex() {
             HttpResponse<String> response = Unirest.get(baseUrl).asString();
             assertThat(response.getStatus()).isEqualTo(200);
-            assertThat(response.getBody()).contains("РђРЅР°Р»РёР·Р°С‚РѕСЂ СЃС‚СЂР°РЅРёС†");
+            assertThat(response.getBody()).contains("Анализатор страниц");
         }
 
     }
@@ -134,7 +134,7 @@ public final class AppTest {
 
             assertThat(response.getStatus()).isEqualTo(200);
             assertThat(body).contains(normalizedName);
-            assertThat(body).contains("РЎС‚СЂР°РЅРёС†Р° СѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІР»РµРЅР°");
+            assertThat(body).contains("Страница успешно добавлена");
 
             Url actualUrl = new QUrl()
                     .name.equalTo(normalizedName)
@@ -156,7 +156,7 @@ public final class AppTest {
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
 
             String body = responsePost.getBody();
-            assertThat(body.contains("РЎС‚СЂР°РЅРёС†Р° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"));
+            assertThat(body.contains("Страница уже существует"));
 
             Url actualUrl = new QUrl()
                     .name.equalTo(existingUrl.getName())
@@ -178,7 +178,7 @@ public final class AppTest {
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("");
 
             String body = responsePost.getBody();
-            assertThat(body).contains("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ URL");
+            assertThat(body).contains("Некорректный URL");
         }
 
         @Test
@@ -217,7 +217,7 @@ public final class AppTest {
             String body = responsePost.getBody();
 
             assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls/" + url.getId());
-            assertThat(body.contains("РЎС‚СЂР°РЅРёС†Р° СѓСЃРїРµС€РЅРѕ РїСЂРѕРІРµСЂРµРЅР°"));
+            assertThat(body.contains("Страница успешно проверена"));
 
             String body1 = Unirest
                     .get(baseUrl + "/urls/" + url.getId())
@@ -234,3 +234,4 @@ public final class AppTest {
         }
     }
 }
+
