@@ -9,12 +9,6 @@ build:
 install:
 	./gradlew clean install
 
-start:
-	APP_ENV=development ./gradlew run
-
-start-dist:
-	APP_ENV=production ./build/install/app/bin/app
-
 run:
 	./gradlew run
 
