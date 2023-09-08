@@ -1,22 +1,28 @@
 package hexlet.code;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import gg.jte.TemplateEngine;
+import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.controllers.RootController;
 import hexlet.code.controllers.UrlController;
+import hexlet.code.repository.BaseRepository;
+import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
-import io.javalin.rendering.template.JavalinThymeleaf;
-import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import gg.jte.ContentType;
+import io.javalin.rendering.template.JavalinJte;
 
-import static io.javalin.apibuilder.ApiBuilder.post;
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.path;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.sql.SQLException;
+import java.util.stream.Collectors;
+
 
 public class App {
 
     private static int getPort() {
-        String port = System.getenv().getOrDefault("PORT", "8000");
+        String port = System.getenv().getOrDefault("PORT", "7070");
         return Integer.valueOf(port);
     }
 
@@ -27,62 +33,56 @@ public class App {
     private static boolean isProduction() {
         return getMode().equals("production");
     }
-    private static TemplateEngine getTemplateEngine() {
-        // Создаём инстанс движка шаблонизатора
-        TemplateEngine templateEngine = new TemplateEngine();
-        // Добавляем к нему диалекты
-        templateEngine.addDialect(new LayoutDialect());
-        templateEngine.addDialect(new Java8TimeDialect());
-        // Настраиваем преобразователь шаблонов, так, чтобы обрабатывались
-        // шаблоны в директории /templates/
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("/templates/");
-        templateResolver.setCharacterEncoding("UTF-8");
-       // Добавляем преобразователь шаблонов к движку шаблонизатора
-        templateEngine.addTemplateResolver(templateResolver);
 
+    private static TemplateEngine createTemplateEngine() {
+        ClassLoader classLoader = App.class.getClassLoader();
+        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
+        TemplateEngine templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
         return templateEngine;
     }
 
-    // Метод добавляет маршруты в переданное приложение
-    private static void addRoutes(Javalin app) {
-        // Для GET-запроса на маршрут / будет выполняться
-        app.get("/", RootController.welcome);
+    public static Javalin getApp() throws IOException, SQLException {
 
-        app.routes(() -> {
-            path("/urls", () -> {
-                post("/", UrlController.createUrl);
-                get("/", UrlController.showUrls);
-                get("/{id}", UrlController.showUrl);
-                post("/{id}/checks", UrlController.checkUrl);
+        JavalinJte.init(createTemplateEngine());
 
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl("jdbc:h2:mem:hexlet_project;DB_CLOSE_DELAY=-1;");
 
-            });
-        });
-    }
+        var dataSource = new HikariDataSource(hikariConfig);
+        // Способ получить путь до файла в src/main/resources
+        var url = App.class.getClassLoader().getResource("schema.sql");
+        var file = new File(url.getFile());
+        var sql = Files.lines(file.toPath())
+                .collect(Collectors.joining("\n"));
 
-    public static Javalin getApp() {
+        // Получаем соединение, создаем стейтмент и выполняем запрос
+        try (var connection = dataSource.getConnection();
+             var statement = connection.createStatement()) {
+            statement.execute(sql);
+        }
 
-        // Создаём приложение
-        Javalin app = Javalin.create(config -> {
-            // Включаем логгирование
+        BaseRepository.dataSource = dataSource;
+
+        var app = Javalin.create(config -> {
             config.plugins.enableDevLogging();
-            JavalinThymeleaf.init(getTemplateEngine());
         });
 
-        // Добавляем маршруты в приложение
-        addRoutes(app);
-
-        // Обработчик before запускается перед каждым запросом
-        // Устанавливаем атрибут ctx для запросов
         app.before(ctx -> {
-            ctx.attribute("ctx", ctx);
+            ctx.contentType("text/html; charset=utf-8");
         });
+
+        app.get(NamedRoutes.rootPath(), RootController::index);
+
+        app.get(NamedRoutes.urlsPath(), UrlController::index);
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
+
+        app.get(NamedRoutes.showUrlPath("{id}"), UrlController::show);
+        app.post(NamedRoutes.checkUrlPath("{id}"), UrlController::checkUrl);
 
         return app;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException, IOException {
         Javalin app = getApp();
         app.start(getPort());
     }

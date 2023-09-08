@@ -38,4 +38,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+jte-classes/
 .database.mv.db

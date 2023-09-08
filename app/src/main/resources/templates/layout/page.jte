@@ -1,5 +1,9 @@
-<!DOCTYPE html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+@import hexlet.code.util.NamedRoutes
+@import hexlet.code.dto.BasePage
+@import gg.jte.Content
+@param Content content
+@param Content header
+@param BasePage page = null
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -19,30 +23,20 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav">
-                <a class="nav-link" href="/">Главная</a>
-                <a class="nav-link" href="/urls">Сайты</a>
+                <a class="nav-link" href="${NamedRoutes.rootPath()}">Главная</a>
+                <a class="nav-link" href="${NamedRoutes.urlsPath()}">Сайты</a>
             </div>
         </div>
     </div>
 </nav>
-
-<main class="flex-grow-1">
-    <div
-            th:if="${session.flash}"
-            th:class="'rounded-0 m-0 alert alert-dismissible fade show alert-' + ${ctx.consumeSessionAttribute('flash-type')}"
-            role="alert"
-    >
-        <p class="m-0" th:text="${ctx.consumeSessionAttribute('flash')}"></p>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+@if(page != null && page.getFlash() != null)
+    <div class="alert alert-info" role="alert">
+        <p>${page.getFlash()}</p>
     </div>
-    <div class="container mt-4">
-        <h1 class="my-4">
-            <section layout:fragment="header"></section>
-        </h1>
-        <section layout:fragment="content"></section>
-    </div>
-</main>
-
+@endif
+<div class="container-lg mt-5">
+${header}
+${content}
+</div>
 </body>
-
 </html>

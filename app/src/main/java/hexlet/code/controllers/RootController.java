@@ -1,9 +1,13 @@
 package hexlet.code.controllers;
 
-import io.javalin.http.Handler;
+import hexlet.code.dto.BasePage;
+import io.javalin.http.Context;
+import java.util.Collections;
 
 public class RootController {
-    public static Handler welcome = ctx -> {
-        ctx.render("index.html");
-    };
+    public static void index(Context ctx) {
+        var page = new BasePage();
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        ctx.render("index.jte", Collections.singletonMap("page", page));
+    }
 }

@@ -1,119 +1,116 @@
 package hexlet.code.controllers;
 
-import hexlet.code.domain.Url;
-import hexlet.code.domain.UrlCheck;
-import hexlet.code.domain.query.QUrl;
-import hexlet.code.domain.query.QUrlCheck;
-import io.ebean.PagedList;
-import io.javalin.http.Handler;
+import hexlet.code.dto.UrlCheckPage;
+import hexlet.code.dto.UrlPage;
+import hexlet.code.dto.UrlsPage;
+import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
+import hexlet.code.repository.UrlRepository;
+import hexlet.code.util.NamedRoutes;
+import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.jsoup.Jsoup;
 
+
 public class UrlController {
 
-    public static Handler showUrls = ctx -> {
-        int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1) - 1;
-        int rowsPerPage = 10;
+    public static void index(Context ctx) throws SQLException {
+        var urls = UrlRepository.getUrls();
+        var pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
+        var per = 10;
+        int skipCount = (pageNumber - 1) * per;
 
-        PagedList<Url> pagedUrls = new QUrl()
-                .setFirstRow(page * rowsPerPage)
-                .setMaxRows(rowsPerPage)
-                .orderBy()
-                .id.asc()
-                .findPagedList();
-
-        List<Url> urls = pagedUrls.getList();
-
-        int lastPage = pagedUrls.getTotalPageCount() + 1;
-        int currentPage = pagedUrls.getPageIndex() + 1;
-        List<Integer> pages = IntStream
-                .range(1, lastPage)
-                .boxed()
+        List<Url> pagedUrls = urls.stream()
+                .skip(skipCount)
+                .limit(per)
                 .collect(Collectors.toList());
 
-        ctx.attribute("urls", urls);
-        ctx.attribute("pages", pages);
-        ctx.attribute("currentPage", currentPage);
-        ctx.render("urls/index.html");
-    };
+        for (Url url: pagedUrls) {
+            if (!UrlCheckRepository.getEntities(url.getId()).isEmpty()) {
+                url.setUrlCheckList();
+            }
+        }
 
-    public static Handler createUrl = ctx -> {
+        var page = new UrlsPage(pagedUrls, pageNumber);
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        ctx.render("urls/index.jte", Collections.singletonMap("page", page));
+    }
 
-        String name = ctx.formParam("name");
+    public static void create(Context ctx) throws SQLException {
+        var name = ctx.formParam("url");
 
         try {
             URL initialUrl = new URL(name);
             String normalizedUrl = initialUrl.getProtocol() + "://" + initialUrl.getAuthority();
 
-            Url checkedUrl = new QUrl()
-                .name.equalTo(normalizedUrl)
-                .findOne();
-            if (checkedUrl != null) {
+            Date currentDate = new Date();
+            Timestamp createdAt = new Timestamp(currentDate.getTime());
+
+
+            var checkedUrl = UrlRepository.find(normalizedUrl);
+            if (checkedUrl.isPresent()) {
                 ctx.sessionAttribute("flash", "Страница уже существует");
-                ctx.sessionAttribute("flash-type", "danger");
-                ctx.render("index.html");
+                ctx.redirect(NamedRoutes.urlsPath());
                 return;
             }
 
-            Url url = new Url(normalizedUrl);
-            url.save();
+            var url = new Url(normalizedUrl, createdAt);
+
+            UrlRepository.save(url);
 
             ctx.sessionAttribute("flash", "Страница успешно добавлена");
-            ctx.sessionAttribute("flash-type", "success");
-            ctx.redirect("/urls");
+            ctx.redirect(NamedRoutes.urlsPath());
+
         } catch (MalformedURLException e) {
             ctx.sessionAttribute("flash", "Некорректный URL");
-            ctx.sessionAttribute("flash-type", "danger");
-            ctx.render("index.html");
-            return;
+            ctx.render("index.jte");
+            ctx.redirect(NamedRoutes.rootPath());
         }
-        ctx.redirect("/urls");
-    };
+    }
 
-    public static Handler showUrl = ctx -> {
-        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+    public static void show(Context ctx) throws SQLException {
+        var id = ctx.pathParamAsClass("id", Long.class).get();
+        var url = UrlRepository.find(id);
 
-        Url url = new QUrl()
-                .id.equalTo(id)
-                .findOne();
-
-        if (url == null) {
-            throw new NotFoundResponse();
+        if (url.isEmpty()) {
+            throw new NotFoundResponse("Page not found");
         }
 
-        List<UrlCheck> urlCheckList = new QUrlCheck()
-                .url.equalTo(url)
-                .orderBy().id.desc()
-                .findList();
+        Url displayedUrl = url.get();
+        var page = new UrlPage(displayedUrl);
 
-        ctx.attribute("urlCheckList", urlCheckList);
+        List<UrlCheck> checks = UrlCheckRepository.getEntities(id);
 
-        ctx.attribute("url", url);
-        ctx.render("urls/show.html");
-    };
+        var urlChecks = new UrlCheckPage(checks);
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        ctx.render("urls/show.jte", Map.of("page", page, "urlChecks", urlChecks));
+    }
 
-    public static Handler checkUrl = ctx -> {
-        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+    public static void checkUrl(Context ctx) throws SQLException {
 
-        Url url = new QUrl()
-                .id.equalTo(id)
-                .findOne();
+        var id = ctx.pathParamAsClass("id", Long.class).getOrDefault(null);
+        var url = UrlRepository.find(id);
 
-        if (url == null) {
-            throw new NotFoundResponse();
+        if (url.isEmpty()) {
+            throw new NotFoundResponse("Page not found");
         }
 
         HttpResponse<String> response = Unirest
-                .get(url.getName())
+                .get(url.get().getName())
                 .asString();
 
         int status = response.getStatus();
@@ -130,12 +127,15 @@ public class UrlController {
             description = document.selectFirst("meta[name=description][content]").attr("content");
         }
 
-        UrlCheck urlCheck = new UrlCheck(status, title, h1, description, url);
-        urlCheck.save();
+        Date currentDate = new Date();
+        Timestamp createdAt = new Timestamp(currentDate.getTime());
+
+        UrlCheck urlCheck = new UrlCheck(status, title, h1, description, id, createdAt);
+
+        UrlCheckRepository.save(urlCheck);
 
         ctx.sessionAttribute("flash", "Страница успешно проверена");
-        ctx.sessionAttribute("flash-type", "success");
-        //ctx.attribute("url", url);
-        ctx.redirect("/urls/" + id);
+        ctx.redirect(NamedRoutes.showUrlPath(id));
     };
+
 }
