@@ -6,13 +6,16 @@ import hexlet.code.repository.UrlRepository;
 import okhttp3.mockwebserver.MockWebServer;
 //import io.ebean.DB;
 import io.ebean.Database;
-import org.junit.jupiter.api.*;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import io.javalin.Javalin;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 //import java.io.File;
 import java.io.IOException;
@@ -78,7 +81,7 @@ public final class AppTest {
         void testIndex() {
             HttpResponse<String> response = Unirest.get(baseUrl).asString();
             assertThat(response.getStatus()).isEqualTo(200);
-            assertThat(response.getBody()).contains("Анализатор страниц");
+            assertThat(response.getBody()).contains("РђРЅР°Р»РёР·Р°С‚РѕСЂ СЃС‚СЂР°РЅРёС†");
         }
     }
 
@@ -135,7 +138,7 @@ public final class AppTest {
 //
 //            assertThat(response.getStatus()).isEqualTo(200);
 //            assertThat(body).contains(normalizedName);
-//            assertThat(body).contains("Страница успешно добавлена");
+//            assertThat(body).contains("РЎС‚СЂР°РЅРёС†Р° СѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІР»РµРЅР°");
 //
 //        }
 //
@@ -151,7 +154,7 @@ public final class AppTest {
 //            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls");
 //
 //            String body = responsePost.getBody();
-//            assertThat(body.contains("Страница уже существует"));
+//            assertThat(body.contains("РЎС‚СЂР°РЅРёС†Р° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚"));
 //        }
 //
 //        @Test
@@ -166,7 +169,7 @@ public final class AppTest {
 //            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("");
 //
 //            String body = responsePost.getBody();
-//            assertThat(body).contains("Некорректный URL");
+//            assertThat(body).contains("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ URL");
 //        }
 
 //        @Test
@@ -192,7 +195,7 @@ public final class AppTest {
 //            String body = responsePost.getBody();
 //
 //            assertThat(responsePost.getHeaders().getFirst("Location")).isEqualTo("/urls/" + url.getId());
-//            assertThat(body.contains("Страница успешно проверена"));
+//            assertThat(body.contains("РЎС‚СЂР°РЅРёС†Р° СѓСЃРїРµС€РЅРѕ РїСЂРѕРІРµСЂРµРЅР°"));
 //
 //            String body1 = Unirest
 //                    .get(baseUrl + "/urls/" + url.getId())
