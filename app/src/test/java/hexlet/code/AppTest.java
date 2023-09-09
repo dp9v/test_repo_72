@@ -181,6 +181,7 @@ public final class AppTest {
 
 
             var url1 = UrlRepository.find(testUrl.substring(0, testUrl.length() - 1));
+            // почему-то присваивается id=0, не поняла почему и ничего умнее не придумала, как засеттить
             url1.get().setId(2);
 
             assertThat(url1.isPresent());

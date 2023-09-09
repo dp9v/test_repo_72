@@ -130,7 +130,7 @@ public class UrlController {
         Date currentDate = new Date();
         Timestamp createdAt = new Timestamp(currentDate.getTime());
 
-        UrlCheck urlCheck = new UrlCheck(status, title, h1, description, id, createdAt);
+        UrlCheck urlCheck = new UrlCheck(status, h1, title, description, id, createdAt);
 
         UrlCheckRepository.save(urlCheck);
 
