@@ -27,12 +27,12 @@ public class App {
     }
 
     private static String getMode() {
-        return System.getenv().getOrDefault("APP_ENV", "development");
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:hexlet_project;DB_CLOSE_DELAY=-1;");
     }
 
-    private static boolean isProduction() {
-        return getMode().equals("production");
-    }
+//    private static boolean isProduction() {
+//        return getMode().equals("jdbc:postgresql://db:5432/postgres?password=password&user=postgres");
+//    }
 
     private static TemplateEngine createTemplateEngine() {
         ClassLoader classLoader = App.class.getClassLoader();
@@ -46,7 +46,10 @@ public class App {
         JavalinJte.init(createTemplateEngine());
 
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl("jdbc:h2:mem:hexlet_project;DB_CLOSE_DELAY=-1;");
+        hikariConfig.setJdbcUrl(getMode());
+
+
+
 
         var dataSource = new HikariDataSource(hikariConfig);
         // Способ получить путь до файла в src/main/resources
