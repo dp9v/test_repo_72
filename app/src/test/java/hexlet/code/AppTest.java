@@ -28,13 +28,12 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-
 public final class AppTest {
 
     private static Javalin app;
     private static String baseUrl;
     private static MockWebServer server;
-    
+
     @BeforeAll
     public static void setUp() throws IOException, SQLException {
         app = App.getApp();
