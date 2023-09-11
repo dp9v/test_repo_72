@@ -1,0 +1,10 @@
+datasource:
+  default: ${APP_ENV}
+  development:
+    username: ""
+    password: ""
+    url: ${JDBC_DATABASE_URL}
+  production:
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
+    url: ${JDBC_DATABASE_URL}
