@@ -27,12 +27,18 @@ public class App {
     }
 
     private static String getMode() {
-        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:hexlet_project;DB_CLOSE_DELAY=-1;");
+        return System.getenv().getOrDefault("APP_ENV", "development");
     }
 
-//    private static boolean isProduction() {
-//        return getMode().equals("jdbc:postgresql://db:5432/postgres?password=password&user=postgres");
-//    }
+    static boolean isProduction() {
+        return getMode().equals("production");
+    }
+
+    static String getDatabaseUrl() {
+        return System.getenv().getOrDefault(
+                "JDBC_DATABASE_URL",
+                "jdbc:h2:mem:project");
+    }
 
     private static TemplateEngine createTemplateEngine() {
         ClassLoader classLoader = App.class.getClassLoader();
@@ -46,9 +52,7 @@ public class App {
         JavalinJte.init(createTemplateEngine());
 
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getMode());
-
-
+        hikariConfig.setJdbcUrl(getDatabaseUrl());
 
 
         var dataSource = new HikariDataSource(hikariConfig);
